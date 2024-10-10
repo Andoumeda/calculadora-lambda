@@ -1,5 +1,4 @@
 #lang racket
-(require racket/trace)
 
 ;;Funcion principal: ejecuta esto para empezar
 ;; (Probablemente no hace falta modificar esta funcion)
@@ -352,12 +351,3 @@
 ;((MULT 2)2)
 ;(ISZERO ((SUB 5)5))
 ;(((IFTHENELSE (ISZERO ((SUB 2)2)))((PLUS 2)2))((MULT 2)1))
-
-;;Funciones de depuracion
-;;Habilite y deshabilite segun su necesidad
-(trace inicio)
-;;(trace validar)
-;;(trace sustituir)
-;(trace evaluar)
-;(trace imprimir)
-(trace leer)
