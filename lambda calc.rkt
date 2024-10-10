@@ -8,8 +8,8 @@
 
 ; Funcion encargada de imprimir la expresion
 (define (imprimir expresion calculo)
-        (print calculo)
-        (display " --- ")
+        (display calculo)
+        (display "> ")
         (display expresion)
         (newline)
   expresion)
@@ -22,11 +22,11 @@
         [else null]))
 
 (define (validar-aux expresion)
-  (cond [(< (tamano expresion) 4) null]
+  (cond [(< (tamanho expresion) 4) null]
         [(not (equal? 1 (contar-ocurrencias expresion '_))) null]
         [(not (equal? 1 (contar-ocurrencias expresion 'L))) null]
         [(equal? 0 (contar-variables-ligadura expresion)) null]
-        [(eqv? '_ (list-ref expresion (- (tamano expresion) 1))) null]
+        [(eqv? '_ (list-ref expresion (- (tamanho expresion) 1))) null]
         [(eqv? (validar-variables expresion) #t) (validar-cuerpo expresion)]
         [else null]))
 
@@ -52,10 +52,13 @@
 (define (contar-ocurrencias expresion elem)
   (foldl + 0 (map (lambda (x) 1) (filter (lambda (x) (eqv? elem x)) expresion))))
 
-(define (tamano lista)
+(define (tamanho lista)
+  (tamanho-aux lista 0))
+
+(define (tamanho-aux lista r)
   (cond [(not (list? lista)) null]
-        [(empty? lista) 0]
-        [else (+ 1 (tamano (cdr lista)))]))
+        [(empty? lista) r]
+        [else (tamanho-aux (cdr lista) (add1 r))]))
 
 (define (contar-variables-ligadura expresion)
   (cond [(eqv? (car expresion) 'L) (contar-variables-ligadura (cdr expresion))]
@@ -132,7 +135,7 @@
 (define (reduccion-beta-aux expresion)
         (cond [(empty? expresion) null]
               [(not (list? expresion)) expresion]
-              [(> 2 (tamano expresion)) expresion]
+              [(> 2 (tamanho expresion)) expresion]
               [(eqv? null (validar-sintaxis (car expresion))) expresion ]
               [(eqv? null (validar-cuerpo (cdr expresion)))]
               [(eqv? (caddar expresion) '_) (reducir (obtener-cuerpo (car expresion)) (cadar expresion) (cadr expresion))]
@@ -174,33 +177,33 @@
 ;     (L y _ 2)
 (define (evaluar expresion)
   (cond [(empty? expresion) null]
-        [(not (pair? expresion)) (imprimir expresion "Resultado")]
+        [(not (pair? expresion)) (imprimir expresion "[Resultado] ---")]
         [else (evaluar-aux
                (imprimir (SETF (SETF
                           (imprimir (sustituir-numeros
-                                     (imprimir expresion "Afirmaciones")) "Sust. Num"))) "Sust. Alias"))]))
+                                     (imprimir expresion "[Sust. Alias] -----")) "[Sust. Num] -------"))) "[Sust. Alias] -----"))]))
 
 (define (evaluar-aux expresion)
   (cond [(not (equal? (obtener-reduccion-beta expresion) expresion))
-         (if (equal? 1 (tamano expresion))
+         (if (equal? 1 (tamanho expresion))
               expresion
-             (evaluar-aux (imprimir (obtener-reduccion-beta expresion) "Red. Beta")))]
-        [else (cond [(equal? expresion TRUE) (imprimir 'TRUE "Sust. Formula")]
-                    [(equal? expresion FALSE) (imprimir 'FALSE "Sust. Formula")]
+             (evaluar-aux (imprimir (obtener-reduccion-beta expresion) "[Red. Beta] -------")))]
+        [else (cond [(equal? expresion TRUE) (imprimir 'TRUE "[Sust. Formula] ---")]
+                    [(equal? expresion FALSE) (imprimir 'FALSE "[Sust. Formula] ---")]
                     [(equal? expresion (formula-a-numero expresion)) (imprimir expresion "")]
-                    [else (imprimir (formula-a-numero expresion) "Sust. Formula")])]))
+                    [else (imprimir (formula-a-numero expresion) "[Sust. Formula] ---")])]))
 
 (define (obtener-reduccion-beta expresion)
   (cond [(empty? expresion) null]
         [(not (list? expresion)) (list expresion)]
-        [(equal? 1 (tamano expresion))
+        [(equal? 1 (tamanho expresion))
          (cond [(empty? (car expresion)) null]
                [(not (pair? (car expresion))) (car expresion)]
-               [(equal? 2 (tamano (car expresion)))  (obtener-reduccion-beta (car expresion))]
+               [(equal? 2 (tamanho (car expresion)))  (obtener-reduccion-beta (car expresion))]
                [else (unir (obtener-definicion (car expresion))
                      (list (obtener-reduccion-beta (obtener-cuerpo (car expresion)))))])]
-        [(equal? 2 (tamano expresion))
-         (if (and (list? (car expresion)) (equal? 2 (tamano (car expresion))))
+        [(equal? 2 (tamanho expresion))
+         (if (and (list? (car expresion)) (equal? 2 (tamanho (car expresion))))
              (cons (obtener-reduccion-beta (car expresion))
                    (list (obtener-reduccion-beta (cdr expresion))))
              (reduccion-beta (list (car expresion) (obtener-reduccion-beta (cdr expresion)))))]
@@ -246,7 +249,7 @@
 
 (define ((SUB x) y)
   (if (> y x)
-      (imprimir "No se puede realizar esta operacion" ".")
+      (imprimir "No se puede realizar esta operacion" "[Error] ---")
       (evaluar (list (list sub x) y))))
 
 (define mult '(L m _ (L n _ (L f _ (m (n f))))))
@@ -273,7 +276,7 @@
 
 (define FALSE '(L x _ (L y _ y)))
 
-(define andd '(L p _ (L q _ ((p q) FALSE ))))
+(define andd '(L p _ (L q _ ((p q) FALSE))))
 
 (define ((AND x) y)
   (evaluar (list (list andd x) y)))
