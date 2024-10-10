@@ -8,10 +8,10 @@
 
 ; Funcion encargada de imprimir la expresion
 (define (imprimir expresion calculo)
-	(write expresion)
-        (write "  ")
-        (write calculo)
-        (displayln "")
+        (print calculo)
+        (display " --- ")
+        (display expresion)
+        (newline)
   expresion)
 
 ; Funcion encargada de validar la sintaxis de la expresion
@@ -178,17 +178,17 @@
         [else (evaluar-aux
                (imprimir (SETF (SETF
                           (imprimir (sustituir-numeros
-                                     (imprimir expresion "Afirmaciones")) "Sust-Num"))) "Sust-Alias"))]))
+                                     (imprimir expresion "Afirmaciones")) "Sust. Num"))) "Sust. Alias"))]))
 
 (define (evaluar-aux expresion)
   (cond [(not (equal? (obtener-reduccion-beta expresion) expresion))
          (if (equal? 1 (tamano expresion))
               expresion
-             (evaluar-aux (imprimir (obtener-reduccion-beta expresion) "red beta")))]
-        [else (cond [(equal? expresion TRUE) (imprimir 'TRUE "sust-formula")]
-                    [(equal? expresion FALSE) (imprimir 'FALSE "sust-formula")]
+             (evaluar-aux (imprimir (obtener-reduccion-beta expresion) "Red. Beta")))]
+        [else (cond [(equal? expresion TRUE) (imprimir 'TRUE "Sust. Formula")]
+                    [(equal? expresion FALSE) (imprimir 'FALSE "Sust. Formula")]
                     [(equal? expresion (formula-a-numero expresion)) (imprimir expresion "")]
-                    [else (imprimir (formula-a-numero expresion) "sust-formula")])]))
+                    [else (imprimir (formula-a-numero expresion) "Sust. Formula")])]))
 
 (define (obtener-reduccion-beta expresion)
   (cond [(empty? expresion) null]
